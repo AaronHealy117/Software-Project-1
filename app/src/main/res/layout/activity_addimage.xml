@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background3"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageButton
+                    android:id="@+id/pdffileBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="240dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/main_icon" />
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/pdffileBtn"
+                    android:layout_marginBottom="12dp"
+                    android:gravity="center"
+                    android:text="SELECT IMAGE"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+            </RelativeLayout>
+
+            <EditText
+                android:id="@+id/FileName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="60dp"
+                android:ems="10"
+                android:gravity="center"
+                android:hint="Image Name"
+                android:inputType="textPersonName"
+                android:singleLine="true"
+                android:textColorHint="@color/cardview_dark_background" />
+
+            <EditText
+                android:id="@+id/FileDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/FileName"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="33dp"
+                android:drawableBottom="?attr/colorAccent"
+                android:ems="10"
+                android:gravity="center"
+                android:hint="Image Description"
+                android:inputType="textLongMessage"
+                android:textColor="@android:color/background_light"
+                android:textColorHint="@color/cardview_dark_background" />
+
+            <EditText
+                android:id="@+id/choosePinBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/FileDesc"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="30dp"
+                android:layout_marginTop="31dp"
+                android:ems="10"
+                android:gravity="center"
+                android:hint="PinCode"
+                android:inputType="numberPassword"
+                android:textColorHint="@color/cardview_dark_background" />
+
+            <Button
+                android:id="@+id/submitbutton"
+                style="@style/FirebaseUI.Button"
+                android:layout_width="match_parent"
+                android:layout_height="79dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:background="#D24958"
+                android:text="SUBMIT" />
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>

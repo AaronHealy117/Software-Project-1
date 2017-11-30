@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="30dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/Title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Add File"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                    android:textColor="@color/silver" />
+
+                <TextView
+                    android:id="@+id/textView7"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Please select a file to upload, such as pdf or word. "
+                    android:textColor="@color/buttonTextColor" />
+
+                <TextView
+                    android:id="@+id/textView8"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="60dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Also make sure you enter a file name that you have not used before, and more importantly a pin code you'll definitely remember."
+                    android:textColor="@color/buttonTextColor" />
+
+                <Button
+                    android:id="@+id/pdffileBtn"
+                    style="@style/FirebaseUI.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/FileName"
+                    android:layout_alignParentStart="true"
+                    android:layout_weight="1"
+                    android:background="@color/silver"
+                    android:text="Select PDF"
+                    android:textColor="@color/colorButton" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="40dp"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/FileName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/FileDesc"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginBottom="28dp"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:gravity="center"
+                    android:hint="Image Name"
+                    android:inputType="textPersonName"
+                    android:textColor="@color/buttonTextColor"
+                    android:textColorHint="@color/cardview_dark_background" />
+
+                <EditText
+                    android:id="@+id/FileDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/pinCode"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginBottom="27dp"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:gravity="center"
+                    android:hint="Description"
+                    android:inputType="textPersonName"
+                    android:textColor="@color/buttonTextColor"
+                    android:textColorHint="@color/cardview_dark_background" />
+
+                <EditText
+                    android:id="@+id/pinCode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/submitbutton"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="50dp"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:gravity="center"
+                    android:hint="PinCode"
+                    android:inputType="numberPassword"
+                    android:textColor="@color/buttonTextColor"
+                    android:textColorHint="@color/cardview_dark_background" />
+
+                <Button
+                    android:id="@+id/submitbutton"
+                    style="@style/FirebaseUI.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_weight="1"
+                    android:background="@color/colorButton"
+                    android:text="UPLOAD" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>
