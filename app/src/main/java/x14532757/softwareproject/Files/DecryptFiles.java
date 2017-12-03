@@ -68,6 +68,7 @@ public class DecryptFiles extends Activity {
     private TextView name;
     private DatabaseReference dbRef;
     private StorageReference storageReference;
+    private StorageReference storageReference1;
     private FirebaseStorage storage;
     private EditText pin;
     private TextView test;
@@ -139,6 +140,7 @@ public class DecryptFiles extends Activity {
         durl.setText(getIntent().getExtras().getString("Durl"));
 
         final String filename = name.getText().toString();
+        final String downloadURL = durl.getText().toString();
 
         //get current user id and reference to database
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -147,6 +149,8 @@ public class DecryptFiles extends Activity {
         //storage ref
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReferenceFromUrl("gs://softwareproject-b1a79.appspot.com/Files").child(userID).child(filename);
+        storageReference1 = storage.getReferenceFromUrl(downloadURL);
+
         //database ref
         dbRef = FirebaseDatabase.getInstance().getReference().child("Files").child(userID);
 
@@ -179,35 +183,36 @@ public class DecryptFiles extends Activity {
             public void onClick(View v) {
                 pd.show();
                 String filename = name.getText().toString();
-                String url = durl.getText().toString();
 
-                File rootPath = new File(Environment.getExternalStoragePublicDirectory (Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
+                    File rootPath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
 
-                if(!rootPath.exists()) {
-                    rootPath.mkdirs();
-                }
-
-                final File localFile = new File(rootPath, filename);
-
-                storageReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                        Toast.makeText(DecryptFiles.this, "Download Complete", Toast.LENGTH_SHORT).show();
-                        pd.dismiss();
+                    if (!rootPath.exists()) {
+                        rootPath.mkdirs();
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(DecryptFiles.this, "Download Failed", Toast.LENGTH_SHORT).show();
-                        pd.dismiss();
-                    }
-                }).addOnProgressListener(new OnProgressListener<FileDownloadTask.TaskSnapshot>() {
-                    @Override
-                    public void onProgress(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                        double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                        pd.setMessage("Downloading " + ((int) progress) + "%...");
-                    }
-                });
+
+                    final File localFile = new File(rootPath, filename+".pdf");
+
+                    storageReference1.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            Toast.makeText(DecryptFiles.this, "Download Complete", Toast.LENGTH_SHORT).show();
+                            pd.dismiss();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(DecryptFiles.this, "Download Failed", Toast.LENGTH_SHORT).show();
+                            pd.dismiss();
+                        }
+                    }).addOnProgressListener(new OnProgressListener<FileDownloadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                            pd.setMessage("Downloading " + ((int) progress) + "%...");
+                        }
+                    });
+
+
             }
         });
 

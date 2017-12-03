@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -38,7 +39,6 @@ public class AddFile extends AppCompatActivity{
     private EditText FileDesc;
     private EditText FilePin;
 
-    private String type;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,10 +141,21 @@ public class AddFile extends AppCompatActivity{
     }
 
     private void openPDFGallery() {
+        //https://developer.android.com/guide/topics/providers/document-provider.html
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/pdf");
         startActivityForResult(intent, PICK_FILE);
+    }
+
+    public static String getMimeType(String url) {
+        //https://stackoverflow.com/questions/8589645/how-to-determine-mime-type-of-file-in-android
+        String type = null;
+        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+        if (extension != null) {
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
+        }
+        return type;
     }
 
 
