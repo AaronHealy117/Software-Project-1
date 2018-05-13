@@ -30,11 +30,18 @@ import x14532757.softwareproject.R;
 
 /**
  * Created by x14532757 on 03/11/2017.
+ *
+ * Code Copied from:
+ * Title: Authenticate Using Google Sign-In on Android
+ * Author: Google
+ * Availability: https://firebase.google.com/docs/auth/android/google-signin?authuser=0
+ *
  */
 
 public class LoginChoice extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
+    //get firebase auth and google sign in api
     private FirebaseAuth mAuth;
     private GoogleApiClient mGoogleApiClient;
 
@@ -47,9 +54,11 @@ public class LoginChoice extends AppCompatActivity implements
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_loginchoices);
 
+        //get buttons
         Button email = (Button) findViewById(R.id.emailBtn);
         Button gmail = (Button) findViewById(R.id.GmailBtn);
 
+        //gmail account sign in button
         gmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,6 +66,7 @@ public class LoginChoice extends AppCompatActivity implements
             }
         });
 
+        //email and password sign in
         email.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,11 +75,11 @@ public class LoginChoice extends AppCompatActivity implements
             }
         });
 
+        //create gmail account sign in
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
@@ -79,6 +89,7 @@ public class LoginChoice extends AppCompatActivity implements
 
     }
 
+    //gmail account sign in method using variables above ^^
     private void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -97,13 +108,13 @@ public class LoginChoice extends AppCompatActivity implements
                 firebaseAuthWithGoogle(account);
             } else {
                 // Google Sign In failed, update UI appropriately
-
+                Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
             }
         }
 
-
     }
 
+    //
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
 
@@ -150,4 +161,6 @@ public class LoginChoice extends AppCompatActivity implements
                 break;
         }
     }
+
+
 }

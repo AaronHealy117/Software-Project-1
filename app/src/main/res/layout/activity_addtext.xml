@@ -2,9 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:id="@+id/layout"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background2">
+    android:background="@color/greynew"
+    android:orientation="vertical"
+    tools:ignore="Overdraw">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -12,7 +15,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:orientation="vertical">
 
@@ -20,79 +23,73 @@
                 android:id="@+id/textView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
                 android:layout_marginBottom="5dp"
                 android:layout_marginTop="30dp"
                 android:gravity="center"
                 android:text="@string/add_text"
                 android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                android:textColor="@color/colorButton" />
+                android:textColor="@color/colorPrimary" />
 
-            <ImageView
-                android:id="@+id/imageView3"
+            <TextView
+                android:id="@+id/textView10"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/textView"
-                android:layout_centerHorizontal="true"
-                android:contentDescription="@string/stegimage"
-                app:srcCompat="@drawable/blank" />
+                android:layout_margin="20dp"
+                android:gravity="center"
+                android:text="Enter a name for your new text block,, as well as a pincode you will remember. The text block can be of considerable size, just not a novel."
+                android:textAppearance="@style/TextAppearance.AppCompat" />
 
             <EditText
                 android:id="@+id/textName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/imageView3"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="30dp"
+                android:backgroundTint="@color/colorButton"
                 android:ems="10"
                 android:gravity="center"
                 android:hint="@string/name"
                 android:inputType="textPersonName"
                 android:singleLine="true"
-                android:textColor="@color/buttonTextColor"
+                android:textColor="@color/colorPrimary"
                 android:textColorHint="@color/cardview_dark_background" />
 
             <EditText
                 android:id="@+id/textBlock"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/textName"
                 android:layout_marginTop="35dp"
+                android:backgroundTint="@color/colorButton"
                 android:ems="10"
                 android:gravity="center"
                 android:hint="@string/text_block"
                 android:inputType="textMultiLine"
-                android:textColor="@color/buttonTextColor"
+                android:textColor="@color/colorPrimary"
                 android:textColorHint="@color/cardview_dark_background" />
 
             <EditText
                 android:id="@+id/choosePinBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/addButton"
-                android:layout_alignParentStart="true"
+                android:layout_marginBottom="100dp"
                 android:layout_marginTop="35dp"
+                android:backgroundTint="@color/colorButton"
                 android:ems="10"
                 android:gravity="center"
                 android:hint="@string/pin_code"
                 android:inputType="numberPassword"
                 android:singleLine="true"
-                android:textColor="@color/buttonTextColor"
+                android:textColor="@color/colorPrimary"
                 android:textColorHint="@color/cardview_dark_background" />
 
             <Button
                 android:id="@+id/addButton"
+                style="@style/FirebaseUI.Button.AccountChooser"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="40dp"
-                android:background="@color/silver"
-                android:text="@string/upload"
-                android:textColor="@color/colorButton"
-                android:textColorLink="@color/colorButton" />
+                android:background="@color/colorButton"
+                android:drawableStart="@android:drawable/ic_menu_upload"
+                android:text="UPLOAD"
+                android:textColor="@color/buttonTextColor" />
         </LinearLayout>
     </ScrollView>
 

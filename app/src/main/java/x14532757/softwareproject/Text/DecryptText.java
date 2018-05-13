@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,15 +14,20 @@ import android.preference.PreferenceManager;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyPermanentlyInvalidatedException;
 import android.security.keystore.KeyProperties;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -29,6 +36,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
@@ -39,6 +48,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Objects;
 
 import javax.crypto.BadPaddingException;
@@ -49,9 +59,32 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
 import x14532757.softwareproject.R;
+import x14532757.softwareproject.Text.StegClasses.Steg;
+import x14532757.softwareproject.Utils.Hash;
 
 /**
  * Created by x14532757 on 29/10/2017.
+ *
+ * Code Copied and Modified from:
+ * Title: Read and Write Data on Android
+ * Author: Google
+ * Availability: https://firebase.google.com/docs/database/android/read-and-write?authuser=0
+ *
+ * Code Copied and Modified from:
+ * Title: firebase-stackoverflow-android Delete Data
+ * Author: puf
+ * Availability: https://github.com/puf/firebase-stackoverflow-android/blob/master/app/src/main/java/com/firebasedemo/stackoverflow/Activity32469846.java
+ *
+ * Code Copied from:
+ * Title: android-FingerprintDialog
+ * Author: googleSamples
+ * Date: 12/02/17
+ * Availability: https://github.com/googlesamples/android-FingerprintDialog
+ *
+ * Code Modified from:
+ * Title: Download Files on Android
+ * Author: Google
+ * Availability: https://firebase.google.com/docs/storage/android/download-files?authuser=0
  */
 
 public class DecryptText extends Activity {
@@ -59,7 +92,6 @@ public class DecryptText extends Activity {
     private TextView name;
     private DatabaseReference dbRef;
     private EditText pin;
-    private TextView test;
     private TextView text;
     private TextView successMes;
 
@@ -73,6 +105,7 @@ public class DecryptText extends Activity {
 
     private LinearLayout clayout;
     private LinearLayout ddlayout;
+    private RelativeLayout layout;
 
     private String success = "Fingerprint Scan Successful";
 
@@ -83,31 +116,201 @@ public class DecryptText extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_decrypttext);
 
+        //get layouts
+        clayout = findViewById(R.id.chooselayout);
+        ddlayout = findViewById(R.id.pinCodeLayout);
+        layout = findViewById(R.id.layout);
+        //get text views
+        name = findViewById(R.id.imageNameText);
+        text = findViewById(R.id.showText);
+        successMes = findViewById(R.id.confirmation_message);
+        // get edit text
+        pin = findViewById(R.id.PinInput);
 
-        clayout = (LinearLayout) findViewById(R.id.chooselayout);
-        ddlayout = (LinearLayout) findViewById(R.id.pinCodeLayout);
-        //text views
-        name = (TextView) findViewById(R.id.imageNameText);
-        text = (TextView) findViewById(R.id.showText);
-        test = (TextView) findViewById(R.id.pincodeText);
-        successMes = (TextView) findViewById(R.id.confirmation_message);
-        //edit text
-        pin = (EditText) findViewById(R.id.PinInput);
-        //buttons
-        final Button choosepin = (Button) findViewById(R.id.choosePinBtn);
-        Button decrypt = (Button) findViewById(R.id.DecryptButton);
-        final Button delete = (Button) findViewById(R.id.DeleteButton);
-        Button exit = (Button) findViewById(R.id.ExitButton);
-        //get data passed from viewpasswords and put them into textviews
+        // getbuttons
+        final Button choosepin = findViewById(R.id.choosePinBtn);
+        Button decrypt = findViewById(R.id.DecryptButton);
+        final Button delete = findViewById(R.id.DeleteButton);
+        Button exit = findViewById(R.id.ExitButton);
+
+        //get data passed from viewpasswords and put them into textviews or strings
         name.setText(getIntent().getExtras().getString("data"));
-        text.setText(getIntent().getExtras().getString("stuff"));
-        test.setText(getIntent().getExtras().getString("pin"));
+        final String storedPin = getIntent().getExtras().getString("pin");
 
         //get current user id and reference to database
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         assert user != null;
         String userID = user.getUid();
+
+        //get storage reference of where the bitmap image is stored
+        final FirebaseStorage storage = FirebaseStorage.getInstance();
+        String bitmap = name.getText().toString();
+        final StorageReference storageReference = storage.getReferenceFromUrl("gs://softwareproject-b1a79.appspot.com/Bitmaps").child(userID).child(bitmap);
+
+        //get database reference of where the rest of the bitmap data is
         dbRef = FirebaseDatabase.getInstance().getReference().child("TextBlocks").child(userID);
+
+
+        decrypt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //fingerprint success message
+                String successMessage = successMes.getText().toString();
+
+                //get entered pin code
+                String enteredPin = pin.getText().toString();
+
+                //create instance of hash class
+                Hash matchHash = new Hash();
+                //validate the hash to make sure the inputted pin code matches the hash in the database
+                boolean match = false;
+                try {
+                    match = matchHash.validatePassword(enteredPin, storedPin);
+                } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                    e.printStackTrace();
+                }
+
+                //pin code entered
+                if(!Objects.equals(enteredPin, "")){
+                    //if pin code matches the one stored in the database
+                    if(match){
+
+                        //download the bitmap in firebase storage as byte array
+                        final long ONE_MEGABYTE = 1024 * 1024;
+                        storageReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                            @Override
+                            public void onSuccess(byte[] bytes) {
+
+                                //create new bitmap with the text in it
+                                Bitmap factory = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                                //Use class Steg to decode the bitmap and get the text back out
+                                String decodedMessage = null;
+                                try {
+                                    decodedMessage = Steg.withInput(factory).decode().intoString();
+                                    assert decodedMessage != null;
+                                    //set the text in a textview
+                                    text.setText(decodedMessage);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
+                                //if text is not null the text has been removed from the bitmap
+                                if(text != null){
+                                    Snackbar.make(layout, "Steg Successful", Snackbar.LENGTH_SHORT).show();
+                                }else{
+                                    Snackbar.make(layout, "Steg Error Occurred", Snackbar.LENGTH_SHORT).show();
+                                }
+
+                        //if download of bitmap fails error message is displayed
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                e.printStackTrace();
+                                Snackbar.make(layout, "An Error Occurred", Snackbar.LENGTH_SHORT).show();
+                            }
+                        });
+                    //pin code does not match the one stored in the database
+                    }else{
+                        Snackbar.make(layout, "Please Enter Correct Pin Code", Snackbar.LENGTH_SHORT).show();
+                    }
+                }
+
+                //fingerprint scanner was used
+                if(Objects.equals(enteredPin, "")){
+
+                    //if fingerprint matches the one stored in the android fingerprint manager
+                    if(success.equals(successMessage)){
+
+                        //download the bitmap in firebase storage as byte array
+                        final long ONE_MEGABYTE = 1024 * 1024;
+                        storageReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                            @Override
+                            public void onSuccess(byte[] bytes) {
+
+                                //create new bitmap with the text in it
+                                Bitmap factory = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                                //Use class Steg to decode the bitmap and get the text back out
+                                String decodedMessage = null;
+                                try {
+                                    decodedMessage = Steg.withInput(factory).decode().intoString();
+                                    assert decodedMessage != null;
+                                    //set the text in a textview
+                                    text.setText(decodedMessage);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
+                                //if text is not null the text has been removed from the bitmap
+                                if(text != null){
+                                    Snackbar.make(layout, "Steg Successful", Snackbar.LENGTH_SHORT).show();
+                                }else{
+                                    Snackbar.make(layout, "Steg Error Occurred", Snackbar.LENGTH_SHORT).show();
+                                }
+
+                                //if download of bitmap fails error message is displayed
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                e.printStackTrace();
+                                Snackbar.make(layout, "An Error Occurred", Snackbar.LENGTH_SHORT).show();
+                            }
+                        });
+
+                        //fingerprint does not match the one stored
+                    }else{
+                        Snackbar.make(layout, "Fingerprint Scan Failed", Snackbar.LENGTH_SHORT).show();
+                    }
+                }
+
+
+            }
+        });
+
+        //button onclick for delete methods
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //get pin code and success message to string
+                final String pincode = pin.getText().toString();
+                String successMessage = successMes.getText().toString();
+
+                //get instance of hash class
+                Hash hash = new Hash();
+                //valdate the hash
+                boolean match = false;
+                try {
+                    match = hash.validatePassword(pincode, storedPin);
+                } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                    e.printStackTrace();
+                }
+
+                //if no pin code entered
+                if(pincode.equals("")){
+                    //and if fingerprint scan successful
+                    if(success.equals(successMessage)){
+                        //delete data
+                        DeleteData();
+                    }
+                }
+
+                //pin code entered
+                if(!pincode.isEmpty()){
+                    //and if the pin code matches the one in the database
+                    if(match){
+                        //delete the data
+                        DeleteData();
+                    }else{
+                        Snackbar.make(layout, "Please Enter Correct Pin Code", Snackbar.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
+
 
         exit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,7 +329,23 @@ public class DecryptText extends Activity {
             }
         });
 
-        //fingerprint
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //code needed for fingerprint scanner
         try {
             mKeyStore = KeyStore.getInstance("AndroidKeyStore");
         } catch (KeyStoreException e) {
@@ -154,7 +373,7 @@ public class DecryptText extends Activity {
 
         KeyguardManager keyguardManager = getSystemService(KeyguardManager.class);
         FingerprintManager fingerprintManager = getSystemService(FingerprintManager.class);
-        Button purchaseButton = (Button) findViewById(R.id.choosePrintBtn);
+        Button purchaseButton = findViewById(R.id.choosePrintBtn);
 
 
         if (keyguardManager != null && !keyguardManager.isKeyguardSecure()) {
@@ -179,36 +398,17 @@ public class DecryptText extends Activity {
         purchaseButton.setEnabled(true);
         purchaseButton.setOnClickListener(new DecryptText.PurchaseButtonClickListener(defaultCipher, DEFAULT_KEY_NAME));
 
-        //button onclick stuff
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String pincode = pin.getText().toString();
-                final String pinc = test.getText().toString();
-                String successMessage = successMes.getText().toString();
-
-                if(success.equals(successMessage)){
-                    DeleteData();
-                }
-                if(pincode.equals(pinc)){
-                    DeleteData();
-                }
-                if(!Objects.equals(pincode, pinc)){
-                    Toast.makeText(DecryptText.this, "Pin Incorrect", Toast.LENGTH_SHORT).show();
-                }
-                if(pincode.isEmpty()){
-                    Toast.makeText(DecryptText.this, "Pin Empty", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
     }
 
 
     private void DeleteData() {
+        //get bitmap name to string
         final String textName = name.getText().toString();
 
+        //query the database for the bitmap name
         Query query = dbRef.orderByChild("TextName").equalTo(textName);
 
+        //if the bitmap name exists then delete it
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -220,13 +420,13 @@ public class DecryptText extends Activity {
                             startActivity(intent);
                         }
                     }else{
-                        Toast.makeText(DecryptText.this, "Failed to delete", Toast.LENGTH_SHORT).show();
+                        Snackbar.make(layout, "Deletion Error", Snackbar.LENGTH_SHORT).show();
                     }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(DecryptText.this, "Error occurred", Toast.LENGTH_SHORT).show();
+                Snackbar.make(layout, "Error Occurred", Snackbar.LENGTH_SHORT).show();
             }
         });
     }

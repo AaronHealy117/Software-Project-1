@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background2"
-    android:orientation="vertical">
+    android:background="@color/greynew"
+    android:orientation="vertical"
+    tools:ignore="Overdraw">
 
 
     <LinearLayout
@@ -18,15 +19,27 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Your Text Things"
+            android:text="Your Text Blocks"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            android:textColor="#D24958" />
+            android:textColor="@color/colorPrimary"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/infoText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:gravity="center"
+            android:text="@string/textListInfo"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:orientation="horizontal">
 
         <Button
@@ -36,7 +49,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/colorButton"
-            android:text="Home" />
+            android:text="Home"
+            tools:ignore="HardcodedText" />
 
         <Button
             android:id="@+id/newBtn"
@@ -45,7 +59,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/colorButton"
-            android:text="Add " />
+            android:text="Add "
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
     <LinearLayout
@@ -58,7 +73,8 @@
             android:id="@+id/TextListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="true">
+            android:clickable="true"
+            android:focusable="true">
 
         </ListView>
 

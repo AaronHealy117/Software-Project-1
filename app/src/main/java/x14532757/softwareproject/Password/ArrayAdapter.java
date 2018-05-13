@@ -14,14 +14,19 @@ import x14532757.softwareproject.R;
 
 /**
  * Created by x14532757 on 24/10/2017.
+ * Title: android-custom-listview
+ * Author: hmkcode
+ * Date: 07/09/2013
+ * Availability: https://github.com/hmkcode/Android/tree/master/android-custom-listview
  */
 
 public abstract class ArrayAdapter extends FirebaseListAdapter<Passwords> {
 
     private Context context;
+    //Create new Firabase list adapter
     private FirebaseListAdapter<Passwords> itemsArrayList;
 
-
+    //constructor
     public ArrayAdapter(Activity activity, Class<Passwords> modelClass, int modelLayout, DatabaseReference ref) {
         super(activity, modelClass, R.layout.password_text_list_layout, ref);
 
@@ -29,23 +34,24 @@ public abstract class ArrayAdapter extends FirebaseListAdapter<Passwords> {
         this.itemsArrayList = itemsArrayList;
     }
 
+    //create new listview of the users data
     @Override
     public View getView(int position, View view, ViewGroup viewGroup) {
 
         LayoutInflater layoutInflater = (LayoutInflater)
                 context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
+        //Create reference to the layout file = list_layout
         View rowView = layoutInflater.inflate(R.layout.password_text_list_layout, viewGroup, false);
 
-        TextView name = (TextView) rowView.findViewById(R.id.nameText);
+        //get the UI elements used to show the users data
+        TextView name = rowView.findViewById(R.id.nameText);
 
+        //set the password name of the user data in the firebase listview
         name.setText(itemsArrayList.getItem(position).getPasswordName());
 
         return rowView;
 
     }
 
-
-
-    //http://hmkcode.com/android-custom-listview-items-row/
 }

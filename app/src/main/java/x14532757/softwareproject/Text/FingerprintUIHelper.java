@@ -9,6 +9,13 @@ import x14532757.softwareproject.R;
 
 /**
  * Created by x14532757 on 19/11/2017.
+ *
+ * Code Copied from:
+ * Title: android-FingerprintDialog
+ * Author: googleSamples
+ * Date: 12/02/17
+ * Availability: https://github.com/googlesamples/android-FingerprintDialog
+ *
  */
 //text
 public class FingerprintUIHelper extends FingerprintManager.AuthenticationCallback {

@@ -39,18 +39,22 @@ public class ForgotPassword extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
 
+        //reset button onclick
         reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+                //get the entered email address
                 String email = inputEmail.getText().toString().trim();
 
+                //validation to make sure its not empty
                 if (TextUtils.isEmpty(email)) {
-                    Toast.makeText(getApplication(), "Enter your registered email id", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplication(), "Please Enter Your Email Address", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-
+                //use firebase authentication to send a password reset password email
+                //to the email address
                 auth.sendPasswordResetEmail(email)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override

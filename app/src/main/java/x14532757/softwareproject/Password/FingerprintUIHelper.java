@@ -9,6 +9,13 @@ import x14532757.softwareproject.R;
 
 /**
  * Created by x14532757 on 08/11/2017.
+ *
+ * Code Copied from:
+ * Title: android-FingerprintDialog
+ * Author: googleSamples
+ * Date: 12/02/17
+ * Availability: https://github.com/googlesamples/android-FingerprintDialog
+ *
  */
 
 public class FingerprintUIHelper extends FingerprintManager.AuthenticationCallback {
@@ -26,22 +33,22 @@ public class FingerprintUIHelper extends FingerprintManager.AuthenticationCallba
         private boolean mSelfCancelled;
 
 
-        public FingerprintUIHelper(FingerprintManager fingerprintManager,
-                                   ImageView icon, TextView errorTextView, Callback callback) {
+        FingerprintUIHelper(FingerprintManager fingerprintManager,
+                            ImageView icon, TextView errorTextView, Callback callback) {
         mFingerprintManager = fingerprintManager;
         mIcon = icon;
         mErrorTextView = errorTextView;
         mCallback = callback;
         }
 
-        public boolean isFingerprintAuthAvailable() {
+        boolean isFingerprintAuthAvailable() {
         // The line below prevents the false positive inspection from Android Studio
         // noinspection ResourceType
         return mFingerprintManager.isHardwareDetected()
         && mFingerprintManager.hasEnrolledFingerprints();
         }
 
-        public void startListening(FingerprintManager.CryptoObject cryptoObject) {
+        void startListening(FingerprintManager.CryptoObject cryptoObject) {
         if (!isFingerprintAuthAvailable()) {
         return;
         }
@@ -54,7 +61,7 @@ public class FingerprintUIHelper extends FingerprintManager.AuthenticationCallba
         mIcon.setImageResource(R.drawable.ic_fp_40px);
         }
 
-        public void stopListening() {
+        void stopListening() {
         if (mCancellationSignal != null) {
         mSelfCancelled = true;
         mCancellationSignal.cancel();

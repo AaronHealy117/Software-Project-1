@@ -23,7 +23,7 @@ public class Image {
         PinCode = pinCode;
     }
 
-    public String getImageDesc() {
+    String getImageDesc() {
         return ImageDesc;
     }
 
@@ -31,7 +31,7 @@ public class Image {
         ImageDesc = imageDesc;
     }
 
-    public String getImageName() {
+    String getImageName() {
         return ImageName;
     }
 
@@ -39,7 +39,7 @@ public class Image {
         ImageName = imageName;
     }
 
-    public String getImageURL() {
+    String getImageURL() {
         return ImageURL;
     }
 
@@ -55,7 +55,7 @@ public class Image {
         ImageUserID = imageUserID;
     }
 
-    public String getPinCode() {
+    String getPinCode() {
         return PinCode;
     }
 

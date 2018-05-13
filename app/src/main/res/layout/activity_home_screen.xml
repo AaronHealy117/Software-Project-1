@@ -4,8 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background3"
-    tools:context="x14532757.softwareproject.HomeScreen">
+    android:background="@drawable/lights2"
+    tools:context="x14532757.softwareproject.HomeScreen"
+    tools:ignore="Overdraw">
 
 
     <ScrollView
@@ -14,6 +15,7 @@
         android:scrollbarStyle="outsideOverlay">
 
         <LinearLayout
+            android:id="@+id/MainLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
@@ -31,21 +33,19 @@
                     android:id="@+id/imageView"
                     android:layout_width="wrap_content"
                     android:layout_height="240dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_centerHorizontal="true"
+                    android:contentDescription="TODO"
                     app:srcCompat="@drawable/main_icon" />
 
                 <TextView
                     android:id="@+id/textView4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_below="@+id/imageView"
                     android:gravity="center"
                     android:text="KRYPTIUM"
                     android:textAppearance="@style/TextAppearance.AppCompat.Headline"
                     android:textColor="@color/buttonTextColor"
-                    android:visibility="visible" />
+                    android:visibility="visible"
+                    tools:ignore="HardcodedText" />
 
             </LinearLayout>
 
@@ -98,7 +98,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="View Passwords"
-                        android:textColor="@color/buttonTextColor" />
+                        android:textColor="@color/buttonTextColor"
+                        tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/textText"
@@ -107,7 +108,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="View Text Blocks"
-                        android:textColor="@color/buttonTextColor" />
+                        android:textColor="@color/buttonTextColor"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -153,7 +155,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="View Files"
-                        android:textColor="@color/buttonTextColor" />
+                        android:textColor="@color/buttonTextColor"
+                        tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/imageText"
@@ -162,7 +165,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="View Images"
-                        android:textColor="@color/buttonTextColor" />
+                        android:textColor="@color/buttonTextColor"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -174,19 +178,27 @@
 
                     <Button
                         android:id="@+id/accountBtn"
-                        style="@style/FirebaseUI.Button"
+                        style="@style/FirebaseUI.Button.AccountChooser"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="My Account"
-                        android:textColor="@color/colorButton" />
+                        android:drawablePadding="20dp"
+                        android:drawableStart="?android:attr/actionModeFindDrawable"
+                        android:gravity="center_vertical"
+                        android:text="MY ACCOUNT"
+                        android:textColor="@color/colorButton"
+                        tools:ignore="HardcodedText" />
 
                     <Button
                         android:id="@+id/logoutBtn"
-                        style="@style/FirebaseUI.Button"
+                        style="@style/FirebaseUI.Button.AccountChooser"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@color/colorButton"
-                        android:text="Logout" />
+                        android:drawablePadding="20dp"
+                        android:drawableStart="?android:attr/homeAsUpIndicator"
+                        android:gravity="center_vertical"
+                        android:text="LOGOUT"
+                        tools:ignore="HardcodedText" />
 
                 </LinearLayout>
 

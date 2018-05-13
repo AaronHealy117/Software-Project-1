@@ -2,10 +2,13 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background"
-    android:orientation="vertical">
+    android:background="@color/greynew"
+    android:orientation="vertical"
+    tools:ignore="Overdraw">
 
 
     <ScrollView
@@ -22,82 +25,79 @@
                 android:id="@+id/imageView"
                 android:layout_width="match_parent"
                 android:layout_height="240dp"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
+                android:contentDescription="TODO"
                 app:srcCompat="@drawable/main_icon" />
 
             <TextView
                 android:id="@+id/textView4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/imageView"
                 android:gravity="center"
                 android:text="KRYPTIUM"
                 android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                android:textColor="@color/buttonTextColor"
-                android:visibility="visible" />
+                android:textColor="@color/colorPrimary"
+                android:visibility="visible"
+                tools:ignore="HardcodedText" />
 
             <EditText
-                android:id="@+id/emailText"
+                android:id="@+id/emailTxt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
                 android:layout_marginTop="70dp"
+                android:backgroundTint="@color/colorButton"
                 android:gravity="center"
                 android:hint="Email"
                 android:inputType="textEmailAddress"
-                android:textColor="@android:color/background_light"
-                android:textColorHint="@color/cardview_dark_background" />
+                android:text="464healy@gmail.com"
+                android:textColor="@color/colorPrimary"
+                android:textColorHint="@color/cardview_dark_background"
+                tools:ignore="HardcodedText" />
 
             <EditText
                 android:id="@+id/passwordText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/emailText"
                 android:layout_marginTop="36dp"
+                android:backgroundTint="@color/colorButton"
                 android:gravity="center"
                 android:hint="Password"
                 android:inputType="textPassword"
-                android:textColor="@android:color/background_light"
-                android:textColorHint="@color/cardview_dark_background" />
+                android:text="Password1"
+                android:textColor="@color/colorPrimary"
+                android:textColorHint="@color/cardview_dark_background"
+                tools:ignore="HardcodedText" />
 
             <Button
                 android:id="@+id/resetBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignTop="@+id/passwordText"
                 android:background="@android:color/transparent"
                 android:gravity="center_vertical"
                 android:text="Forgot Password?"
                 android:textColor="#D24958"
-                android:textSize="8sp" />
+                android:textSize="8sp"
+                tools:ignore="HardcodedText" />
 
             <Button
                 android:id="@+id/loginBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/registerBtn"
-                android:layout_alignParentStart="true"
                 android:layout_marginBottom="10dp"
                 android:layout_marginTop="50dp"
                 android:background="#D24958"
                 android:text="Login"
-                android:textColor="#252338" />
+                android:textColor="#252338"
+                tools:ignore="HardcodedText" />
 
             <Button
                 android:id="@+id/registerBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentStart="true"
                 android:background="@null"
                 android:text="Sign Up"
                 android:textAllCaps="false"
-                android:textColor="#D24958" />
+                android:textColor="#D24958"
+                tools:ignore="HardcodedText" />
         </LinearLayout>
     </ScrollView>
 

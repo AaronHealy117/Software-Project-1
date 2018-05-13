@@ -13,11 +13,13 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyPermanentlyInvalidatedException;
 import android.security.keystore.KeyProperties;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +33,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
@@ -39,6 +42,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Objects;
 
 import javax.crypto.BadPaddingException;
@@ -49,9 +53,28 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
 import x14532757.softwareproject.R;
+import x14532757.softwareproject.Utils.Hash;
 
 /**
  * Created by x14532757 on 23/10/2017.
+ *
+ * Code Copied and Modified from:
+ * Title: Read and Write Data on Android
+ * Author: Google
+ * Availability: https://firebase.google.com/docs/database/android/read-and-write?authuser=0
+ *
+ * Code Copied and Modified from:
+ * Title: firebase-stackoverflow-android Delete Data
+ * Author: puf
+ * Availability: https://github.com/puf/firebase-stackoverflow-android/blob/master/app/src/main/java/com/firebasedemo/stackoverflow/Activity32469846.java
+ *
+ * Code Copied from:
+ * Title: android-FingerprintDialog
+ * Author: googleSamples
+ * Date: 12/02/17
+ * Availability: https://github.com/googlesamples/android-FingerprintDialog
+ *
+ *
  */
 
 public class DecryptPassword extends Activity{
@@ -65,16 +88,16 @@ public class DecryptPassword extends Activity{
     private KeyGenerator mKeyGenerator;
     private SharedPreferences mSharedPreferences;
 
-    private static String TAG = "decryptPassword";
+    private static String TAG = "....................................";
     private TextView name;
     private DatabaseReference dbRef;
     private EditText pin;
-    private TextView test;
     private TextView password;
     private TextView successMes;
 
     private LinearLayout clayout;
     private LinearLayout ddlayout;
+    private RelativeLayout layout;
 
     //fingerprint success message
     private String success = "Fingerprint Scan Successful";
@@ -86,25 +109,26 @@ public class DecryptPassword extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_decryptpassword);
 
-        clayout = (LinearLayout) findViewById(R.id.chooselayout);
-        ddlayout = (LinearLayout) findViewById(R.id.pinCodeLayout);
-        //text views
-        name = (TextView) findViewById(R.id.imageNameText);
-        password = (TextView) findViewById(R.id.showText);
-        test = (TextView) findViewById(R.id.pincodeText);
-        successMes = (TextView) findViewById(R.id.confirmation_message);
-        //edit text
-        pin = (EditText) findViewById(R.id.PinInput);
-        //buttons
-        final Button choosepin = (Button) findViewById(R.id.choosePinBtn);
-        final Button decrypt = (Button) findViewById(R.id.DecryptButton);
-        final Button delete = (Button) findViewById(R.id.DeleteButton);
-        Button exit = (Button) findViewById(R.id.ExitButton);
+        //get layouts
+        clayout = findViewById(R.id.chooselayout);
+        ddlayout = findViewById(R.id.pinCodeLayout);
+        layout = findViewById(R.id.layout);
+        //get text views
+        name = findViewById(R.id.imageNameText);
+        password = findViewById(R.id.showText);
+        successMes = findViewById(R.id.confirmation_message);
+        //get edit text
+        pin = findViewById(R.id.PinInput);
+        //get buttons
+        final Button choosepin = findViewById(R.id.choosePinBtn);
+        final Button decrypt = findViewById(R.id.DecryptButton);
+        final Button delete = findViewById(R.id.DeleteButton);
+        Button exit = findViewById(R.id.ExitButton);
 
         //get data passed from view passwords and put them into strings and text views
         name.setText(getIntent().getExtras().getString("data"));
         password.setText(getIntent().getExtras().getString("pass"));
-        test.setText(getIntent().getExtras().getString("pin"));
+        final String storedPin = getIntent().getExtras().getString("pin");
 
         //get current user id and reference to database
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -127,21 +151,38 @@ public class DecryptPassword extends Activity{
             @Override
             public void onClick(View v) {
 
+                //get pin code to string
                 final String pincode = pin.getText().toString();
-                final String pinc = test.getText().toString();
+
+                //create instance of hash class
+                Hash hash = new Hash();
+                //validate the inputted pin code with the hash stored in the database
+                boolean match = false;
+                try {
+                    match = hash.validatePassword(pincode, storedPin);
+                } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                    e.printStackTrace();
+                }
+
+                //get fingerprint success message
                 String successMessage = successMes.getText().toString();
 
-                if(success.equals(successMessage)){
-                    DeleteData();
+                //if no pincode entered
+                if(pincode.equals("")){
+                    //then verify fingerprint is successful then delete data
+                    if(success.equals(successMessage)){
+                        DeleteData();
+                    }
                 }
-                if(pincode.equals(pinc)){
-                    DeleteData();
-                }
-                if(!Objects.equals(pincode, pinc)){
-                    Toast.makeText(DecryptPassword.this, "Pin Incorrect", Toast.LENGTH_SHORT).show();
-                }
-                if(pincode.isEmpty()){
-                    Toast.makeText(DecryptPassword.this, "Pin Empty", Toast.LENGTH_SHORT).show();
+
+                //if pincode entered
+                if(!pincode.isEmpty()){
+                    //then verify the hashed matched and delete data
+                    if(match){
+                        DeleteData();
+                    }else{
+                        Snackbar.make(layout, "Please Enter Correct Pin Code", Snackbar.LENGTH_SHORT).show();
+                    }
                 }
 
             }
@@ -151,45 +192,97 @@ public class DecryptPassword extends Activity{
             @Override
             public void onClick(View v) {
 
+                //get data to strings
                 final String pincode = pin.getText().toString();
-                final String pinc = test.getText().toString();
                 String passwordEncrypted = password.getText().toString();
                 String successMessage = successMes.getText().toString();
 
-                //String pass = pin.getText().toString() ;
-                String key = pinc;
-                String salt = "LDQjdlZ%NiJhTQB%dVuc)%TyGiG9ZBqS";
-                byte[] iv = {-89, -19, 17, -83, 86, 106, -31, 30, -5, -111, 61, -75, -84, 95, 120, -53};
-                final Encryption decryption = Encryption.getDefault(key, salt, iv);
+                // if pin code entered
+                if(!Objects.equals(pincode, "")) {
 
-                if(success.equals(successMessage)){
-                    assert decryption != null;
-                    String passwordDecypted = decryption.decryptOrNull(passwordEncrypted);
-                    password.setText(passwordDecypted);
+                    //create instance of hash class
+                    Hash hash = new Hash();
+                    //validate the inputted pin code
+                    boolean match = false;
+                    try {
+                        match = hash.validatePassword(pincode, storedPin);
+                    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                        e.printStackTrace();
+                    }
 
-                    if(password!=null){
-                        Toast.makeText(DecryptPassword.this, "success decrypt", Toast.LENGTH_SHORT).show();
+                    //if the hashes match then start decrypting password
+                    if(match) {
+
+                        //create instance of AEScipher class
+                        AESCipher ciph = null;
+                        try {
+                            ciph = new AESCipher();
+                        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+                            e.printStackTrace();
+                        }
+
+                        //decrypt the encrypted password
+                        String passwordDecypted = null;
+                        try {
+                            assert ciph != null;
+                            passwordDecypted = ciph.decrypt(passwordEncrypted, storedPin);
+                        } catch (InvalidKeyException | UnsupportedEncodingException | InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException e) {
+                            e.printStackTrace();
+                        }
+
+                        //show decrypted password
+                        password.setText(passwordDecypted);
+
+                        //if the password is displayed properly its successful
+                        if (password != null) {
+                            Snackbar.make(layout, "Decryption Successful", Snackbar.LENGTH_SHORT).show();
+                        } else {
+                            Snackbar.make(layout, "Decryption Error", Snackbar.LENGTH_SHORT).show();
+                        }
+
+                    //if inputted pin code does not match the one stored in the database, show message and return
                     }else{
-                        Toast.makeText(DecryptPassword.this, "decrypt failed", Toast.LENGTH_SHORT).show();
+                        Snackbar.make(layout, "Please Enter Correct Pin Code", Snackbar.LENGTH_SHORT).show();
+                    }
+
+                }
+
+
+                //if fingerprint used
+                if(Objects.equals(pincode, "")){
+                    //and if the fingerprint matches the one stored in the android fingerprint manager
+                    if(success.equals(successMessage)){
+
+                        //create instance of AEScipher
+                        AESCipher ciph = null;
+                        try {
+                            ciph = new AESCipher();
+                        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+                            e.printStackTrace();
+                        }
+
+                        //decrypt the password
+                        String passwordDecypted = null;
+                        try {
+                            assert ciph != null;
+                            passwordDecypted = ciph.decrypt(passwordEncrypted, storedPin);
+                        } catch (InvalidKeyException | UnsupportedEncodingException | InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException e) {
+                            e.printStackTrace();
+                        }
+
+                        //show decrypted password
+                        password.setText(passwordDecypted);
+
+                        //if the password is displayed properly its successful
+                        if(password!=null){
+                            Snackbar.make(layout, "Decryption Successful", Snackbar.LENGTH_SHORT).show();
+                        }else{
+                            Snackbar.make(layout, "Decryption Error", Snackbar.LENGTH_SHORT).show();
+                        }
+
                     }
                 }
-                if(pincode.equals(pinc)){
-                    assert decryption != null;
-                    String passwordDecypted = decryption.decryptOrNull(passwordEncrypted);
-                    password.setText(passwordDecypted);
 
-                    if(password!=null){
-                        Toast.makeText(DecryptPassword.this, "success decrypt", Toast.LENGTH_SHORT).show();
-                    }else{
-                        Toast.makeText(DecryptPassword.this, "decrypt failed", Toast.LENGTH_SHORT).show();
-                    }
-                }
-                if(!Objects.equals(pincode, pinc)){
-                    Toast.makeText(DecryptPassword.this, "Pin Incorrect", Toast.LENGTH_SHORT).show();
-                }
-                if(pincode.isEmpty()){
-                    Toast.makeText(DecryptPassword.this, "Pin Empty", Toast.LENGTH_SHORT).show();
-                }
 
             }
         });
@@ -202,7 +295,7 @@ public class DecryptPassword extends Activity{
             }
         });
 
-        //fingerprint
+        //fingerprint code needed to use fingerpring scanner
         try {
             mKeyStore = KeyStore.getInstance("AndroidKeyStore");
         } catch (KeyStoreException e) {
@@ -230,7 +323,7 @@ public class DecryptPassword extends Activity{
 
         KeyguardManager keyguardManager = getSystemService(KeyguardManager.class);
         FingerprintManager fingerprintManager = getSystemService(FingerprintManager.class);
-        Button purchaseButton = (Button) findViewById(R.id.choosePrintBtn);
+        Button purchaseButton = findViewById(R.id.choosePrintBtn);
 
 
         if (keyguardManager != null && !keyguardManager.isKeyguardSecure()) {
@@ -260,10 +353,13 @@ public class DecryptPassword extends Activity{
 
 
     public void DeleteData() {
+        //get password name
         final String passName = name.getText().toString();
 
+        //query the database for the password name
         Query query = dbRef.orderByChild("PasswordName").equalTo(passName);
 
+        //if the password name exists then delete it
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -275,12 +371,12 @@ public class DecryptPassword extends Activity{
                             startActivity(intent);
                         }
                     }else{
-                        Toast.makeText(DecryptPassword.this, "Failed to delete", Toast.LENGTH_SHORT).show();
+                        Snackbar.make(layout, "Deletion Error", Snackbar.LENGTH_SHORT).show();
                     }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(DecryptPassword.this, "Error occurred", Toast.LENGTH_SHORT).show();
+                Snackbar.make(layout, "Decryption Error", Snackbar.LENGTH_SHORT).show();
             }
         });
     }
@@ -414,15 +510,5 @@ public class DecryptPassword extends Activity{
     }
 
 }
-
-
-
-
-    //https://stackoverflow.com/questions/39657449/remove-specific-value-from-firebase-database
-    //https://stackoverflow.com/questions/39642635/delete-item-from-the-firebase-database
-    //https://stackoverflow.com/questions/45734001/comparing-edittext-string-with-firebase-databases-child-value
-    //https://stackoverflow.com/questions/37390864/how-to-delete-from-firebase-realtime-database
-
-    //https://github.com/puf/firebase-stackoverflow-android/blob/master/app/src/main/java/com/firebasedemo/stackoverflow/Activity32469846.java
 
 

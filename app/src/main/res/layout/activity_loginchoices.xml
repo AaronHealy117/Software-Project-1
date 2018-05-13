@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@drawable/background">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/greynew"
+    tools:ignore="Overdraw">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -24,7 +27,8 @@
                     android:id="@+id/imageView4"
                     android:layout_width="match_parent"
                     android:layout_height="200dp"
-                    app:srcCompat="@drawable/main_icon" />
+                    app:srcCompat="@drawable/main_icon"
+                    android:contentDescription="TODO" />
 
                 <TextView
                     android:id="@+id/textView12"
@@ -33,38 +37,43 @@
                     android:gravity="center"
                     android:text="KRYPTIUM"
                     android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                    android:textColor="@color/buttonTextColor" />
+                    android:textColor="@color/colorPrimary"
+                    tools:ignore="HardcodedText" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@+id/linearLayout"
                 android:layout_margin="20dp"
                 android:orientation="vertical">
 
                 <Button
                     android:id="@+id/emailBtn"
-                    style="@style/FirebaseUI.Button"
+                    style="@style/FirebaseUI.Button.AccountChooser"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/colorButton"
-                    android:text="@string/email_password" />
+                    android:drawablePadding="20dp"
+                    android:drawableStart="@android:drawable/ic_menu_send"
+                    android:gravity="center_vertical"
+                    android:text="@string/email_password_caps" />
 
                 <Button
                     android:id="@+id/GmailBtn"
                     style="@style/FirebaseUI.Button.AccountChooser.GoogleButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="GMAIL LOGIN" />
+                    android:text="GMAIL LOGIN"
+                    tools:ignore="HardcodedText" />
 
                 <Button
                     android:id="@+id/facebookBtn"
                     style="@style/FirebaseUI.Button.AccountChooser.FacebookButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="FACEBOOK LOGIN" />
+                    android:text="FACEBOOK LOGIN"
+                    tools:ignore="HardcodedText" />
 
             </LinearLayout>
 

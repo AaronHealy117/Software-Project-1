@@ -21,17 +21,28 @@ import x14532757.softwareproject.R;
 
 /**
  * Created by x14532757 on 19/10/2017.
+ *
+ * Code Modified from:
+ * Title: Android Custom ListView Items “Row”
+ * Author: hmkcode
+ * Date: 07/09/13
+ * Availability: https://github.com/hmkcode/Android/tree/master/android-custom-listview
+ *
+ * Code Modified from:
+ * Title: How to pass the selectedListItem's object to another activity?
+ * Author: KillerFish
+ * Date: 11/06/11
+ * Availability: https://stackoverflow.com/questions/6277662/how-to-pass-the-selectedlistitems-object-to-another-activity
  */
 
 public class ViewFiles extends AppCompatActivity {
-
-    private ListView list;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_viewfiles);
-        list = (ListView) findViewById(R.id.FileList);
+        ListView list = (ListView) findViewById(R.id.FileList);
+        list.setFilterTouchesWhenObscured(true);
 
         Button home = (Button) findViewById(R.id.homeBtn);
         Button add  = (Button) findViewById(R.id.newBtn);
@@ -52,11 +63,14 @@ public class ViewFiles extends AppCompatActivity {
             }
         });
 
+        //get the currently logged in user information
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         assert user != null;
         String userID = user.getUid();
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference().child("Files").child(userID);
 
+        //create a firebase list adapter and get the frontend list_layout
+        // and populate the listview with the data stored in the database
         final FirebaseListAdapter<Files> fAdapter = new FirebaseListAdapter<Files>(
                 ViewFiles.this,
                 Files.class,
@@ -65,9 +79,9 @@ public class ViewFiles extends AppCompatActivity {
         ) {
             @Override
             protected void populateView(View v, Files model, int position) {
-                TextView name = (TextView) v.findViewById(R.id.nameText);
+                TextView name = v.findViewById(R.id.nameText);
                 name.setText(model.getFileName());
-                TextView pass = (TextView) v.findViewById(R.id.passwordText);
+                TextView pass = v.findViewById(R.id.passwordText);
                 pass.setText(model.getFileDesc());
 
             }
@@ -75,6 +89,8 @@ public class ViewFiles extends AppCompatActivity {
 
         list.setAdapter(fAdapter);
 
+        //when a user clicks on an item in the listview, data from the lisview is passed to the decryptFile page
+        //to be used to decrypt the files
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

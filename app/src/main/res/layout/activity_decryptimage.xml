@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:background="@drawable/background3">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/greynew"
+    android:orientation="vertical"
+    tools:ignore="Overdraw">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -21,58 +27,45 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/Image"
+                    android:id="@+id/textView8"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
                     android:gravity="center"
                     android:text="Decrypt Image"
                     android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                    android:textColor="@color/silver" />
-
-                <TextView
-                    android:id="@+id/durlText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:id="@+id/pincodeText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/imageNameText"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="18dp"
-                    android:text="TextView"
-                    android:visibility="gone" />
+                    android:textColor="@color/colorPrimary"
+                    tools:ignore="HardcodedText" />
 
                 <TextView
                     android:id="@+id/imageNameText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_below="@+id/Image"
-                    android:layout_marginTop="33dp"
                     android:gravity="center"
                     android:text="text"
-                    android:textAppearance="@style/TextAppearance.AppCompat"
-                    android:textColor="@color/buttonTextColor" />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                    tools:ignore="HardcodedText" />
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="TODO"
+                    app:srcCompat="@drawable/com_facebook_auth_dialog_cancel_background" />
 
                 <EditText
                     android:id="@+id/PinInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_above="@+id/pinCodeLayout"
-                    android:layout_alignParentStart="true"
                     android:layout_marginTop="30dp"
+                    android:backgroundTint="@color/colorButton"
                     android:ems="10"
                     android:gravity="center"
                     android:hint="Pin Code"
                     android:inputType="numberPassword"
-                    android:textColor="@color/buttonTextColor"
+                    android:textColor="@color/colorPrimary"
                     android:textColorHint="@color/cardview_dark_background"
-                    android:visibility="invisible" />
+                    android:visibility="invisible"
+                    tools:ignore="HardcodedText" />
 
                 <LinearLayout
                     android:id="@+id/chooselayout"
@@ -87,7 +80,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@color/colorButton"
-                        android:text="PinCode" />
+                        android:text="PinCode"
+                        tools:ignore="HardcodedText" />
 
                     <Button
                         android:id="@+id/choosePrintBtn"
@@ -96,7 +90,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@color/colorButton"
-                        android:text="Fingerprint" />
+                        android:text="Fingerprint"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -105,7 +100,6 @@
                 android:id="@+id/pinCodeLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
                 android:layout_marginTop="60dp"
                 android:orientation="vertical"
                 android:visibility="invisible">
@@ -115,27 +109,24 @@
                     style="@style/FirebaseUI.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_above="@+id/DeleteButton"
-                    android:layout_alignStart="@+id/DeleteButton"
                     android:layout_marginBottom="32dp"
                     android:background="@color/colorButton"
-                    android:text="Decrypt" />
+                    android:text="Decrypt"
+                    tools:ignore="HardcodedText" />
 
                 <Button
                     android:id="@+id/DeleteButton"
                     style="@style/FirebaseUI.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
                     android:background="@color/colorButton"
-                    android:text="Delete" />
+                    android:text="Delete"
+                    tools:ignore="HardcodedText" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
                 android:layout_marginTop="90dp"
                 android:orientation="vertical"
                 android:paddingTop="10dp">
@@ -164,12 +155,16 @@
 
                 <Button
                     android:id="@+id/ExitButton"
-                    style="@style/FirebaseUI.Button"
+                    style="@style/FirebaseUI.Button.AccountChooser"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/silver"
-                    android:text="Exit"
-                    android:textColor="@color/colorButton" />
+                    android:drawablePadding="20dp"
+                    android:drawableStart="?android:attr/homeAsUpIndicator"
+                    android:gravity="center_vertical"
+                    android:text="EXIT"
+                    android:textColor="@color/colorButton"
+                    tools:ignore="HardcodedText" />
 
             </LinearLayout>
 

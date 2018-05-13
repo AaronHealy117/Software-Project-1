@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background"
-    android:orientation="vertical">
+    android:background="@color/greynew"
+    android:orientation="vertical"
+    tools:ignore="Overdraw">
 
 
     <LinearLayout
@@ -20,13 +21,25 @@
             android:gravity="center"
             android:text="Your Files"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            android:textColor="@color/silver" />
+            android:textColor="@color/colorPrimary"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/infoText4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:gravity="center"
+            android:text="@string/add_a_new_file_or_select_one_from_the_list_to_decrypt"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:orientation="horizontal">
 
         <Button
@@ -36,7 +49,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/colorButton"
-            android:text="Home" />
+            android:text="Home"
+            tools:ignore="HardcodedText" />
 
         <Button
             android:id="@+id/newBtn"
@@ -45,7 +59,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/colorButton"
-            android:text="Add" />
+            android:text="Add"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
     <LinearLayout
@@ -58,8 +73,8 @@
             android:id="@+id/FileList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="true">
-        </ListView>
+            android:clickable="true"
+            android:focusable="true"></ListView>
 
     </LinearLayout>
 

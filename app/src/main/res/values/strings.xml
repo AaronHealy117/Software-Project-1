@@ -45,4 +45,10 @@
     <string name="name">Name</string>
     <string name="todo">TODO</string>
     <string name="my_account">My Account</string>
+    <string name="kryptium">KRYPTIUM</string>
+    <string name="textListInfo">Add a new text block or select one from the list to decrypt</string>
+    <string name="add_a_new_password_or_select_one_from_the_list_to_decrypt">Add a new password or select one from the list to decrypt</string>
+    <string name="add_a_new_image_or_select_one_from_the_list_to_decrypt">Add a new image or select one from the list to decrypt</string>
+    <string name="add_a_new_file_or_select_one_from_the_list_to_decrypt">Add a new file or select one from the list to decrypt</string>
+    <string name="email_password_caps"><![CDATA[EMAIL & PASSWORD]]></string>
 </resources>

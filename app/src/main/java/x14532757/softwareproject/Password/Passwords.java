@@ -22,9 +22,7 @@ public class Passwords {
         UserID = userID;
     }
 
-
-
-    public String getPasswordName() {
+    String getPasswordName() {
         return PasswordName;
     }
 
@@ -40,7 +38,7 @@ public class Passwords {
         PasswordText = passwordText;
     }
 
-    public String getPinCode() {
+    String getPinCode() {
         return PinCode;
     }
 
@@ -56,14 +54,4 @@ public class Passwords {
         UserID = userID;
     }
 
-    /*@Exclude
-    public Map<String, Object> toMap() {
-        HashMap<String, Object> result = new HashMap<>();
-        result.put("PasswordName", UserID);
-        result.put("PasswordName", PasswordName);
-        result.put("PasswordText", PasswordText);
-        result.put("PinCode", PinCode);
-
-        return result;
-    }*/
 }

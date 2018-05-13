@@ -1,11 +1,13 @@
 package x14532757.softwareproject.Files;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +18,8 @@ import android.security.keystore.KeyPermanentlyInvalidatedException;
 import android.security.keystore.KeyProperties;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -34,13 +38,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
@@ -49,7 +53,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Objects;
+import java.util.Random;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -59,21 +65,45 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
 import x14532757.softwareproject.R;
+import x14532757.softwareproject.Utils.Hash;
 
 /**
  * Created by x14532757 on 29/10/2017.
+ *
+ * Code Copied from:
+ * Title: Request App Permissions
+ * Author: Android Developer
+ * Availability: https://developer.android.com/training/permissions/requesting.html
+ *
+ * Code Copied and Modified from:
+ * Title: firebase-stackoverflow-android Delete Data
+ * Author: puf
+ * Availability: https://github.com/puf/firebase-stackoverflow-android/blob/master/app/src/main/java/com/firebasedemo/stackoverflow/Activity32469846.java
+ *
+ * Code Copied from:
+ * Title: android-FingerprintDialog
+ * Author: googleSamples
+ * Date: 12/02/17
+ * Availability: https://github.com/googlesamples/android-FingerprintDialog
+ *
+ * Code Modified from:
+ * Title: Download Files on Android
+ * Author: Google
+ * Availability: https://firebase.google.com/docs/storage/android/download-files?authuser=0
+ *
+ * Code Modified from:
+ * Title: How to write to file in Java – FileOutputStream
+ * Author: Mykong
+ * Date: 30/03/10
+ * Availability: https://www.mkyong.com/java/how-to-write-to-file-in-java-fileoutputstream-example/
+ *
  */
 
 public class DecryptFiles extends Activity {
     private TextView name;
     private DatabaseReference dbRef;
-    private StorageReference storageReference;
     private StorageReference storageReference1;
-    private FirebaseStorage storage;
     private EditText pin;
-    private TextView test;
-    private TextView desc;
-    private TextView durl;
     private TextView successMes;
 
     ProgressDialog pd;
@@ -88,34 +118,241 @@ public class DecryptFiles extends Activity {
 
     private LinearLayout clayout;
     private LinearLayout ddlayout;
+    private LinearLayout linearLayout;
 
-    private String success = "Fingerprint Scan Successful";
+    private static final String success = "Fingerprint Scan Successful";
 
-    private final String TAG = "decryptFiles";
+    private final String TAG = "......................";
+
+    private static final int MY_PERMISSIONS_REQUEST_READ_STORAGE = 123;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_decryptfiles);
-
-        clayout = (LinearLayout) findViewById(R.id.chooselayout);
-        ddlayout = (LinearLayout) findViewById(R.id.pinCodeLayout);
+        //layouts
+        clayout =  findViewById(R.id.chooselayout);
+        ddlayout =  findViewById(R.id.pinCodeLayout);
+        linearLayout = findViewById(R.id.layout);
         //text views
-        name = (TextView) findViewById(R.id.imageNameText);
-        //desc = (TextView) findViewById(R.id.fileDesc);
-        test = (TextView) findViewById(R.id.pincodeText);
-        durl = (TextView) findViewById(R.id.durlText);
-        successMes = (TextView) findViewById(R.id.confirmation_message);
-        //edit text
-        pin = (EditText) findViewById(R.id.PinInput);
+        name =  findViewById(R.id.imageNameText);
+        successMes = findViewById(R.id.confirmation_message);
+        //pincode input
+        pin =  findViewById(R.id.PinInput);
         //buttons
-        final Button choosepin = (Button) findViewById(R.id.choosePinBtn);
-        Button decrypt = (Button) findViewById(R.id.DecryptButton);
-        final Button delete = (Button) findViewById(R.id.DeleteButton);
-        Button exit = (Button) findViewById(R.id.ExitButton);
+        final Button choosepin = findViewById(R.id.choosePinBtn);
+        final Button decrypt =  findViewById(R.id.DecryptButton);
+        final Button delete = findViewById(R.id.DeleteButton);
+        Button exit = findViewById(R.id.ExitButton);
 
+        //create progress bar
         pd = new ProgressDialog(this);
         pd.setMessage("Downloading....");
+
+        //get the data passed from the viewFiles class and show them on the screen or store in variables
+        name.setText(getIntent().getExtras().getString("data"));
+        String durl = getIntent().getExtras().getString("Durl");
+        final String storedPin = getIntent().getExtras().getString("pin");
+        final String filename = name.getText().toString();
+
+        //get current user id and reference to database
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        assert user != null;
+        String userID = user.getUid();
+        //create reference to where the users files are stored
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        assert durl != null;
+        storageReference1 = storage.getReferenceFromUrl(durl);
+
+        //check permissions have been granted to access the devices external storage
+        ActivityCompat.requestPermissions(DecryptFiles.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_STORAGE);
+
+        //create reference to where the users data is stored in the database
+        dbRef = FirebaseDatabase.getInstance().getReference().child("Files").child(userID);
+
+
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String enteredPin = pin.getText().toString();
+                String successMessage = successMes.getText().toString();
+
+                //create instance of the Hash class
+                Hash hash = new Hash();
+                //validate the user inputted pin code
+                boolean match = false;
+                try {
+                    match = hash.validatePassword(enteredPin, storedPin);
+                } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                    e.printStackTrace();
+                }
+                Log.d(TAG, "matched: " + match);
+
+                //if no pincode entered then user must have used fingerprint
+                if(enteredPin.equals("")){
+                    //if fingerprint correct then data can be deleted
+                    if(success.equals(successMessage)){
+                        DeleteData();
+                    }
+                }
+
+                //if pincode entered check that the hash matches the once stored in the database
+                if(!enteredPin.isEmpty()){
+                    //if the hashes match then data can be deleted
+                    if(match){
+                        DeleteData();
+                    }else{
+                        Snackbar.make(linearLayout, "Please Enter Correct Pin Code", Snackbar.LENGTH_SHORT).show();
+                    }
+                }
+
+            }
+        });
+
+        decrypt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pd.show();
+
+                //get the file name
+                final String filename = name.getText().toString();
+                //create a random number from 0-1000
+                Random random = new Random();
+                int n = random.nextInt(1000);
+                //combine filename and random number, this allows the file to be downloaded again without the same file name
+                final String newFileName = n + filename;
+                final String key = pin.getText().toString();
+
+                String successMessage = successMes.getText().toString();
+
+                final File rootPath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
+                if (!rootPath.exists()) {
+                    rootPath.mkdirs();
+                }
+                final File localFile = new File(rootPath, newFileName);
+
+                //if the pincode has been entered take this route to decrypting the file
+                if(!Objects.equals(key, "")){
+
+                    //create instance of hash class
+                    Hash hash = new Hash();
+                    //validate the hash by comparing entered pincode and stored hash
+                    boolean match = false;
+                    try {
+                        match = hash.validatePassword(key, storedPin);
+                    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                        e.printStackTrace();
+                    }
+
+                    //if the hashes match
+                    if(match){
+                        //download the file from firebase storage as a byte array
+                        storageReference1.getBytes(Long.MAX_VALUE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                            //if file downloaded successfully get the file bytes
+                            @Override
+                            public void onSuccess(byte[] bytes) {
+
+                                //get instance of twofish class
+                                TwoFish twofish = new TwoFish();
+
+                                //decrypt the file bytes
+                                byte[] decrypted = new byte[0];
+                                //try decrypt the file
+                                try {
+                                    decrypted = twofish.decrypt(bytes, storedPin);
+                                //if file decryption error occurs print error and return
+                                } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException | NoSuchPaddingException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
+                                    Snackbar.make(linearLayout, "An Error Occurred While Decrypting", Snackbar.LENGTH_SHORT).show();
+                                    e.printStackTrace();
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
+
+                                //convert file byte array back to an actual file
+                                FileOutputStream fos;
+                                try {
+                                    fos = new FileOutputStream(localFile);
+                                    fos.write(decrypted);
+                                    Toast.makeText(getApplicationContext(), "Download Successful", Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(DecryptFiles.this, ViewFiles.class);
+                                    startActivity(intent);
+                                    pd.dismiss();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        //file download error occurred
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Snackbar.make(linearLayout, "An Error Occurred While Downloading", Snackbar.LENGTH_SHORT).show();
+                                pd.dismiss();
+                            }
+                        });
+                    //pincode does not match one stored in database
+                    }else{
+                        Snackbar.make(linearLayout, "Pin Code Does Not Match", Snackbar.LENGTH_LONG).show();
+                        pd.dismiss();
+                    }
+
+
+                }
+
+                //fingerprint authentication is used
+                if(Objects.equals(key, "")){
+                    //if the fingerprint matches the one stored then we can start to decrypt the file
+                    if(success.equals(successMessage)){
+                        //download the file from firebase storage as a byte array
+                        storageReference1.getBytes(Long.MAX_VALUE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                            @Override
+                            public void onSuccess(byte[] bytes) {
+
+                                //get instance of twofish class
+                                TwoFish twofish = new TwoFish();
+                                //decrypt the file bytes
+                                byte[] decrypted = new byte[0];
+                                //try decrypt the file
+                                try {
+                                    decrypted = twofish.decrypt(bytes, storedPin);
+
+                                    //if file decryption error occurs print error and return
+                                } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException | NoSuchPaddingException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException e) {
+                                    Snackbar.make(linearLayout, "An Error Occurred While Decrypting", Snackbar.LENGTH_SHORT).show();
+                                    e.printStackTrace();
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
+
+                                //convert file byte array back to an actual file
+                                FileOutputStream fos;
+                                try {
+                                    fos = new FileOutputStream(localFile);
+                                    fos.write(decrypted);
+                                    pd.dismiss();
+                                    Toast.makeText(getApplicationContext(), "Download Successful", Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(DecryptFiles.this, ViewFiles.class);
+                                    startActivity(intent);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                                //file download error occurred
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Snackbar.make(linearLayout, "An Error Occurred While Downloading", Snackbar.LENGTH_SHORT).show();
+                                pd.dismiss();
+                            }
+                        });
+
+                    }
+                }
+
+
+            }
+        });
 
         exit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,89 +371,22 @@ public class DecryptFiles extends Activity {
             }
         });
 
-        //get data passed from viewpasswords and put them into textviews
-        name.setText(getIntent().getExtras().getString("data"));
-        test.setText(getIntent().getExtras().getString("pin"));
-        durl.setText(getIntent().getExtras().getString("Durl"));
-
-        final String filename = name.getText().toString();
-        final String downloadURL = durl.getText().toString();
-
-        //get current user id and reference to database
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        assert user != null;
-        String userID = user.getUid();
-        //storage ref
-        storage = FirebaseStorage.getInstance();
-        storageReference = storage.getReferenceFromUrl("gs://softwareproject-b1a79.appspot.com/Files").child(userID).child(filename);
-        storageReference1 = storage.getReferenceFromUrl(downloadURL);
-
-        //database ref
-        dbRef = FirebaseDatabase.getInstance().getReference().child("Files").child(userID);
-
-        //button onclick stuff
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String pincode = pin.getText().toString();
-                final String pinc = test.getText().toString();
-                String successMessage = successMes.getText().toString();
-
-                if(success.equals(successMessage)){
-                    DeleteData();
-                }else{
-                    if(pincode.equals(pinc)){
-                        DeleteData();
-                    }
-                    if(!Objects.equals(pincode, pinc)){
-                        Toast.makeText(DecryptFiles.this, "Pin Incorrect", Toast.LENGTH_SHORT).show();
-                    }
-                    if(pincode.isEmpty()){
-                        Toast.makeText(DecryptFiles.this, "Pin Empty", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-            }
-        });
-        decrypt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pd.show();
-                String filename = name.getText().toString();
-
-                    File rootPath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
-
-                    if (!rootPath.exists()) {
-                        rootPath.mkdirs();
-                    }
-
-                    final File localFile = new File(rootPath, filename+".pdf");
-
-                    storageReference1.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(DecryptFiles.this, "Download Complete", Toast.LENGTH_SHORT).show();
-                            pd.dismiss();
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(DecryptFiles.this, "Download Failed", Toast.LENGTH_SHORT).show();
-                            pd.dismiss();
-                        }
-                    }).addOnProgressListener(new OnProgressListener<FileDownloadTask.TaskSnapshot>() {
-                        @Override
-                        public void onProgress(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                            double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                            pd.setMessage("Downloading " + ((int) progress) + "%...");
-                        }
-                    });
 
 
-            }
-        });
 
-        //fingerprint
+
+
+
+
+
+
+
+
+
+
+
+
+        //the following code is used to access the android fingerprint manager
         try {
             mKeyStore = KeyStore.getInstance("AndroidKeyStore");
         } catch (KeyStoreException e) {
@@ -244,8 +414,7 @@ public class DecryptFiles extends Activity {
 
         KeyguardManager keyguardManager = getSystemService(KeyguardManager.class);
         FingerprintManager fingerprintManager = getSystemService(FingerprintManager.class);
-        Button purchaseButton = (Button) findViewById(R.id.choosePrintBtn);
-
+        Button purchaseButton = findViewById(R.id.choosePrintBtn);
 
         if (keyguardManager != null && !keyguardManager.isKeyguardSecure()) {
             Toast.makeText(this,
@@ -270,12 +439,33 @@ public class DecryptFiles extends Activity {
         purchaseButton.setOnClickListener(new DecryptFiles.PurchaseButtonClickListener(defaultCipher, DEFAULT_KEY_NAME));
     }
 
+
+    //method used to verify the permissions needed have been granted by the user
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Snackbar.make(linearLayout, "Permission Granted", Snackbar.LENGTH_SHORT).show();
+                } else {
+                    Intent intent = new Intent(DecryptFiles.this, ViewFiles.class);
+                    Snackbar.make(linearLayout, "Please Enable Application Permissions", Snackbar.LENGTH_SHORT).show();
+                    startActivity(intent);
+                }
+            }
+        }
+    }
+
+
     private void DeleteData() {
         final String textName = name.getText().toString();
 
+        //query the data by the filename in the database
         Query query = dbRef.orderByChild("FileName").equalTo(textName);
 
-        storageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+        //if data in the database exists then delete it
+        storageReference1.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 Toast.makeText(DecryptFiles.this, "File Deleted", Toast.LENGTH_SHORT).show();
@@ -287,6 +477,7 @@ public class DecryptFiles extends Activity {
             }
         });
 
+        //then remove the file from firebase storage
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -298,19 +489,17 @@ public class DecryptFiles extends Activity {
                             startActivity(intent);
                         }
                     }else{
-                        Toast.makeText(DecryptFiles.this, "Failed to delete", Toast.LENGTH_SHORT).show();
+                        Snackbar.make(linearLayout, "Error Occurred", Snackbar.LENGTH_SHORT).show();
                     }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(DecryptFiles.this, "Error occurred", Toast.LENGTH_SHORT).show();
+                Snackbar.make(linearLayout, "Error Occurred", Snackbar.LENGTH_SHORT).show();
             }
         });
     }
 
-
-    //finger print stuff
 
     private boolean initCipher(Cipher cipher, String keyName) {
         try {

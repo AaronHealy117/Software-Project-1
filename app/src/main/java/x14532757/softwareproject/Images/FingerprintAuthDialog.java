@@ -22,6 +22,13 @@ import x14532757.softwareproject.R;
 
 /**
  * Created by x14532757 on 19/11/2017.
+ *
+ * Code Copied from:
+ * Title: android-FingerprintDialog
+ * Author: googleSamples
+ * Date: 12/02/17
+ * Availability: https://github.com/googlesamples/android-FingerprintDialog
+ *
  */
 
 public class FingerprintAuthDialog extends DialogFragment
@@ -58,7 +65,7 @@ public class FingerprintAuthDialog extends DialogFragment
                              Bundle savedInstanceState) {
         getDialog().setTitle("Fingerprint Auth");
         View v = inflater.inflate(R.layout.fingerprint_dialog_container, container, false);
-        mCancelButton = (Button) v.findViewById(R.id.cancel_button);
+        mCancelButton = v.findViewById(R.id.cancel_button);
         mCancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -68,13 +75,11 @@ public class FingerprintAuthDialog extends DialogFragment
 
         mFingerprintContent = v.findViewById(R.id.fingerprint_container);
         mBackupContent = v.findViewById(R.id.backup_container);
-        mPassword = (EditText) v.findViewById(R.id.password);
+        mPassword = v.findViewById(R.id.password);
         mPassword.setOnEditorActionListener(this);
-        mPasswordDescriptionTextView = (TextView) v.findViewById(R.id.password_description);
-        mUseFingerprintFutureCheckBox = (CheckBox)
-                v.findViewById(R.id.use_fingerprint_in_future_check);
-        mNewFingerprintEnrolledTextView = (TextView)
-                v.findViewById(R.id.new_fingerprint_enrolled_description);
+        mPasswordDescriptionTextView = v.findViewById(R.id.password_description);
+        mUseFingerprintFutureCheckBox = v.findViewById(R.id.use_fingerprint_in_future_check);
+        mNewFingerprintEnrolledTextView = v.findViewById(R.id.new_fingerprint_enrolled_description);
         mFingerprintUiHelper = new FingerprintUIHelper(
                 mActivity.getSystemService(FingerprintManager.class),
                 (ImageView) v.findViewById(R.id.fingerprint_icon),

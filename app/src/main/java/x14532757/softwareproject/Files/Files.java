@@ -23,7 +23,7 @@ public class Files {
         UserID = userID;
     }
 
-    public String getFileName() {
+    String getFileName() {
         return FileName;
     }
 
@@ -31,7 +31,7 @@ public class Files {
         FileName = fileName;
     }
 
-    public String getFileDesc() {
+    String getFileDesc() {
         return FileDesc;
     }
 
@@ -39,7 +39,7 @@ public class Files {
         FileDesc = fileDesc;
     }
 
-    public String getFileURL() {
+    String getFileURL() {
         return FileURL;
     }
 
@@ -47,7 +47,7 @@ public class Files {
         FileURL = fileURL;
     }
 
-    public String getPinCode() {
+    String getPinCode() {
         return PinCode;
     }
 

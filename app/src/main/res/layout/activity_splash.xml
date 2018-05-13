@@ -1,35 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/splash"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@drawable/background">
+    android:background="@drawable/lights2"
+    android:orientation="vertical"
+    tools:ignore="Overdraw">
 
-    <com.facebook.shimmer.ShimmerFrameLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/shimmer_view_container1"
+    <TextView
+        android:id="@+id/textTitle"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="200dp"
+        android:gravity="center_horizontal"
+        android:text="@string/kryptium"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="@color/colorButton" />
 
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="250dp"
-            android:layout_marginTop="100dp"
-            android:src="@drawable/main_icon" />
-
-        <TextView
-            android:id="@+id/textTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/imageView2"
-            android:layout_marginTop="350dp"
-            android:gravity="center_horizontal"
-            android:text="KRYPTIUM"
-            android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
-
-    </com.facebook.shimmer.ShimmerFrameLayout>
-
-    </RelativeLayout>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="250dp"
+        android:src="@drawable/main_icon" />
+</LinearLayout>
 

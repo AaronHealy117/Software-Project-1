@@ -5,4 +5,11 @@
     <color name="colorAccent">#FF4081</color>
     <color name="silver">#c4c4c9</color>
     <color name="darkred">#683045</color>
+
+    <color name="grey">#9faaae</color>
+    <color name="greynew">#f4f4f2</color>
+
+    <color name="green">#409693</color>
+    <color name="lightpurple">#7686a7</color>
+
 </resources>

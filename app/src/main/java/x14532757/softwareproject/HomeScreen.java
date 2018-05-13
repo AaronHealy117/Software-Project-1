@@ -1,8 +1,12 @@
 package x14532757.softwareproject;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -10,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -19,13 +24,14 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import x14532757.softwareproject.Files.ViewFiles;
 import x14532757.softwareproject.Images.ViewImage;
 import x14532757.softwareproject.LoginRegister.LoginChoice;
 import x14532757.softwareproject.Password.ViewPasswords;
 import x14532757.softwareproject.Text.ViewText;
-import x14532757.softwareproject.Utils.MyAccount;
+import x14532757.softwareproject.User.MyAccount;
 
 public class HomeScreen extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener {
@@ -33,6 +39,9 @@ public class HomeScreen extends AppCompatActivity implements
     private static final String TAG = "Error homepage";
     private FirebaseAuth mAuth;
     private GoogleApiClient mGoogleApiClient;
+    private static final int MY_PERMISSIONS_REQUEST_READ_STORAGE = 123;
+
+    private LinearLayout linearLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +68,14 @@ public class HomeScreen extends AppCompatActivity implements
         ImageButton images = (ImageButton) findViewById(R.id.imageBtn);
         Button logout = (Button) findViewById(R.id.logoutBtn);
         Button account = (Button) findViewById(R.id.accountBtn);
-        //Button t = (Button) findViewById(R.id.testBtn);
         ImageButton viewfiles = (ImageButton) findViewById(R.id.filesBtn);
+        linearLayout = (LinearLayout) findViewById(R.id.MainLayout);
+
+
+        ActivityCompat.requestPermissions(HomeScreen.this, new String[]{
+                Manifest.permission.USE_FINGERPRINT}, MY_PERMISSIONS_REQUEST_READ_STORAGE
+        );
+
 
         account.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,6 +117,20 @@ public class HomeScreen extends AppCompatActivity implements
             }
         });
 
+        //get currently signed in users UID
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            String email = user.getEmail();
+        } else {
+            // No user is signed in so go back to login screen
+            Toast.makeText(this, "You shouldn't be here", Toast.LENGTH_SHORT).show();
+
+            Intent intent = new Intent(HomeScreen.this, LoginChoice.class);
+            startActivity(intent);
+        }
+
+        //google api sign out.
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,13 +141,31 @@ public class HomeScreen extends AppCompatActivity implements
                         new ResultCallback<Status>() {
                             @Override
                             public void onResult(@NonNull Status status) {
-                                Toast.makeText(HomeScreen.this, "Logout successful", Toast.LENGTH_SHORT).show();;
+                                Toast.makeText(HomeScreen.this, "Logout successful", Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent(HomeScreen.this, LoginChoice.class);
                                 startActivity(intent);
                             }
                         });
             }
         });
+    }
+
+    //reguest method to verify user has given the needed application permissions
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Snackbar.make(linearLayout, "Permission Granted", Snackbar.LENGTH_SHORT).show();
+                } else {
+                    Intent intent = new Intent(HomeScreen.this, ViewImage.class);
+                    Snackbar.make(linearLayout, "Please Enable Application Permissions", Snackbar.LENGTH_SHORT).show();
+                    startActivity(intent);
+                }
+            }
+
+        }
     }
 
     @Override
